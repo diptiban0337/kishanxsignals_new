@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Subscription Plans - KishanX Trading{% endblock %}
+
+{% block extra_css %}
+<style>
+    .subscription-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .subscription-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .subscription-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .subscription-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .subscription-card.premium {
+        border: 2px solid #4CAF50;
+    }
+
+    .subscription-card.premium::before {
+        content: "Most Popular";
+        position: absolute;
+        top: 1rem;
+        right: -2rem;
+        background: #4CAF50;
+        color: white;
+        padding: 0.5rem 3rem;
+        transform: rotate(45deg);
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .subscription-card h2 {
+        color: #4CAF50;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        border-bottom: 2px solid #4CAF50;
+        padding-bottom: 0.5rem;
+    }
+
+    .subscription-price {
+        font-size: 2.5rem;
+        color: #e0e0e0;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .subscription-price span {
+        font-size: 1rem;
+        color: #888;
+    }
+
+    .subscription-features {
+        list-style-type: none;
+        padding: 0;
+        margin: 1rem 0;
+        flex-grow: 1;
+    }
+
+    .subscription-features li {
+        color: #e0e0e0;
+        margin-bottom: 0.8rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+
+    .subscription-features li:before {
+        content: "✓";
+        color: #4CAF50;
+        position: absolute;
+        left: 0;
+    }
+
+    .subscription-button {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: background-color 0.3s ease;
+        width: 100%;
+        margin-top: auto;
+    }
+
+    .subscription-button:hover {
+        background: #45a049;
+    }
+
+    .subscription-button.secondary {
+        background: transparent;
+        border: 2px solid #4CAF50;
+        color: #4CAF50;
+    }
+
+    .subscription-button.secondary:hover {
+        background: rgba(76, 175, 80, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        .subscription-container {
+            padding: 1rem;
+        }
+
+        .subscription-cards {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .subscription-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="subscription-container">
+    <h1>Subscription Plans</h1>
+    
+    <div class="subscription-cards">
+        <!-- Basic Plan Card -->
+        <div class="subscription-card">
+            <h2>Basic Plan</h2>
+            <div class="subscription-price">
+                $29<span>/month</span>
+            </div>
+            <ul class="subscription-features">
+                <li>Access to basic market signals</li>
+                <li>Daily market updates</li>
+                <li>Basic technical analysis</li>
+                <li>Email support</li>
+                <li>Community forum access</li>
+            </ul>
+            <button class="subscription-button secondary" onclick="location.href='{{ url_for('subscribe', plan_id='basic') }}'">Select Plan</button>
+        </div>
+
+        <!-- Premium Plan Card -->
+        <div class="subscription-card premium">
+            <h2>Premium Plan</h2>
+            <div class="subscription-price">
+                $99<span>/month</span>
+            </div>
+            <ul class="subscription-features">
+                <li>All Basic Plan features</li>
+                <li>Real-time market signals</li>
+                <li>Advanced technical analysis</li>
+                <li>Priority support</li>
+                <li>Exclusive trading strategies</li>
+                <li>Portfolio tracking</li>
+                <li>Risk management tools</li>
+            </ul>
+            <button class="subscription-button" onclick="location.href='{{ url_for('subscribe', plan_id='premium') }}'">Select Plan</button>
+        </div>
+
+        <!-- Pro Plan Card -->
+        <div class="subscription-card">
+            <h2>Pro Plan</h2>
+            <div class="subscription-price">
+                $199<span>/month</span>
+            </div>
+            <ul class="subscription-features">
+                <li>All Premium Plan features</li>
+                <li>Custom trading strategies</li>
+                <li>1-on-1 trading consultation</li>
+                <li>API access</li>
+                <li>Advanced analytics</li>
+                <li>Automated trading signals</li>
+                <li>Priority feature requests</li>
+            </ul>
+            <button class="subscription-button secondary" onclick="location.href='{{ url_for('subscribe', plan_id='pro') }}'">Select Plan</button>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="error-container">
+    <h1>500 - Internal Server Error</h1>
+    <p>An unexpected error has occurred. Please try again later.</p>
+    {% if error %}
+    <div class="error-details">
+        <p>Error details: {{ error }}</p>
+    </div>
+    {% endif %}
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Return to Dashboard</a>
+</div>
+{% endblock %} 

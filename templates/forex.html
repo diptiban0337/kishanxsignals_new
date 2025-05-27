@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}Forex Market - KishanX Trading{% endblock %}
+
+{% block extra_css %}
+<style>
+    .forex-container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .forex-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .forex-card {
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 18px;
+        padding: 22px 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .forex-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        color: #aaa;
+        font-size: 0.9rem;
+    }
+
+    .form-group select,
+    .form-group input {
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.2);
+        color: #fff;
+    }
+
+    .time-inputs {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .btn-generate {
+        background: #00e6d0;
+        color: #000;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+
+    .btn-generate:hover {
+        background: #00c4b0;
+    }
+
+    .signals-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .signals-table th,
+    .signals-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .signals-table th {
+        background: rgba(0, 230, 208, 0.2);
+        color: #00e6d0;
+    }
+
+    .signal-call {
+        color: #4caf50;
+    }
+
+    .signal-put {
+        color: #f44336;
+    }
+
+    .price-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .price-card {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .price-label {
+        color: #aaa;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+
+    .price-value {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .error-message {
+        color: #f44336;
+        margin-bottom: 20px;
+        padding: 10px;
+        background: rgba(244, 67, 54, 0.1);
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="forex-container">
+    <div class="forex-header">
+        <h1>Forex Market</h1>
+        <div class="user-info">
+            <span>Welcome, {{ user.username }}</span>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="error-message">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="forex-card">
+        <h2>Generate Signals</h2>
+        <form method="POST" class="forex-form">
+            <div class="form-group">
+                <label for="pair">Currency Pair</label>
+                <select name="pair" id="pair" required>
+                    {% for pair in pairs %}
+                    <option value="{{ pair }}" {% if pair == selected_pair %}selected{% endif %}>{{ pair }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="broker">Broker</label>
+                <select name="broker" id="broker" required>
+                    {% for broker in brokers %}
+                    <option value="{{ broker }}" {% if broker == selected_broker %}selected{% endif %}>{{ broker }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="signal_type">Signal Type</label>
+                <select name="signal_type" id="signal_type" required>
+                    <option value="CALL">Call</option>
+                    <option value="PUT">Put</option>
+                    <option value="BOTH">Both</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Start Time</label>
+                <div class="time-inputs">
+                    <input type="number" name="start_hour" min="0" max="23" value="9" required>
+                    <span>:</span>
+                    <input type="number" name="start_minute" min="0" max="59" value="0" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>End Time</label>
+                <div class="time-inputs">
+                    <input type="number" name="end_hour" min="0" max="23" value="17" required>
+                    <span>:</span>
+                    <input type="number" name="end_minute" min="0" max="59" value="0" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn-generate">Generate Signals</button>
+            </div>
+        </form>
+    </div>
+
+    {% if current_rate %}
+    <div class="forex-card">
+        <h2>Current Market Data</h2>
+        <div class="price-info">
+            <div class="price-card">
+                <div class="price-label">Current Rate</div>
+                <div class="price-value">{{ "%.4f"|format(current_rate) }}</div>
+            </div>
+            <div class="price-card">
+                <div class="price-label">Call Price</div>
+                <div class="price-value">{{ "%.4f"|format(call_price) if call_price else "N/A" }}</div>
+            </div>
+            <div class="price-card">
+                <div class="price-label">Put Price</div>
+                <div class="price-value">{{ "%.4f"|format(put_price) if put_price else "N/A" }}</div>
+            </div>
+            <div class="price-card">
+                <div class="price-label">Data Source</div>
+                <div class="price-value">{{ data_source }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if signals %}
+    <div class="forex-card">
+        <h2>Generated Signals</h2>
+        <table class="signals-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Pair</th>
+                    <th>Direction</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for signal in signals %}
+                <tr>
+                    <td>{{ signal.time }}</td>
+                    <td>{{ signal.pair }}</td>
+                    <td class="signal-{{ signal.direction|lower }}">{{ signal.direction }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add any JavaScript for real-time updates or interactions here
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize any necessary JavaScript functionality
+    });
+</script>
+{% endblock %} 

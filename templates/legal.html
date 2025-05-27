@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Legal Information - KishanX Trading{% endblock %}
+
+{% block extra_css %}
+<style>
+    .legal-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .legal-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .legal-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .legal-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .legal-card h2 {
+        color: #4CAF50;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        border-bottom: 2px solid #4CAF50;
+        padding-bottom: 0.5rem;
+    }
+
+    .legal-card p {
+        color: #e0e0e0;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        flex-grow: 1;
+    }
+
+    .legal-card ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 1rem 0;
+    }
+
+    .legal-card li {
+        color: #e0e0e0;
+        margin-bottom: 0.5rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+
+    .legal-card li:before {
+        content: "•";
+        color: #4CAF50;
+        position: absolute;
+        left: 0;
+    }
+
+    .legal-card .last-updated {
+        color: #888;
+        font-size: 0.9rem;
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        .legal-container {
+            padding: 1rem;
+        }
+
+        .legal-cards {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .legal-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="legal-container">
+    <h1>Legal Information</h1>
+    
+    <div class="legal-cards">
+        <!-- Terms of Service Card -->
+        <div class="legal-card">
+            <h2>Terms of Service</h2>
+            <p>By using KishanX Trading, you agree to these terms:</p>
+            <ul>
+                <li>You must be at least 18 years old</li>
+                <li>You are responsible for maintaining account security</li>
+                <li>You agree to use the service for lawful purposes only</li>
+                <li>We reserve the right to modify these terms at any time</li>
+            </ul>
+            <p>Please read these terms carefully before using our services.</p>
+            <div class="last-updated">Last updated: March 15, 2024</div>
+        </div>
+
+        <!-- Privacy Policy Card -->
+        <div class="legal-card">
+            <h2>Privacy Policy</h2>
+            <p>Your privacy is important to us. This policy outlines how we handle your data:</p>
+            <ul>
+                <li>We collect only necessary personal information</li>
+                <li>Your data is encrypted and securely stored</li>
+                <li>We never share your information with third parties</li>
+                <li>You can request data deletion at any time</li>
+            </ul>
+            <p>We are committed to protecting your privacy and personal information.</p>
+            <div class="last-updated">Last updated: March 15, 2024</div>
+        </div>
+
+        <!-- Disclaimer Card -->
+        <div class="legal-card">
+            <h2>Disclaimer</h2>
+            <p>Important information about our services:</p>
+            <ul>
+                <li>Trading involves significant risk</li>
+                <li>Past performance doesn't guarantee future results</li>
+                <li>We are not financial advisors</li>
+                <li>Use our signals at your own risk</li>
+            </ul>
+            <p>Please trade responsibly and understand the risks involved.</p>
+            <div class="last-updated">Last updated: March 15, 2024</div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

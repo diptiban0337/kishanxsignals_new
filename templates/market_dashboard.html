@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/market_dashboard.css') }}">
+<div class="container-fluid px-3 py-3" data-subscribed-symbols='{{ subscribed_symbols|tojson|safe }}'>
+    <!-- Add required scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/market_dashboard.js') }}"></script>
+    
+    <!-- Alerts Container -->
+    <div class="alerts-container"></div>
+    
+    <div class="row g-3">
+        {% for symbol in subscribed_symbols %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card market-card" id="card-{{ symbol }}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ symbol }}</h5>
+                    <span class="badge bg-primary">Live</span>
+                </div>
+                <div class="card-body">
+                    <div class="current-price text-center mb-3">
+                        <span class="h3">0.00000</span>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="metric-item">
+                                <span class="label">24h High</span>
+                                <span class="high-price">0.00000</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-item">
+                                <span class="label">24h Low</span>
+                                <span class="low-price">0.00000</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="metric-item">
+                                <span class="label">Volume</span>
+                                <span class="volume">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div id="chart-{{ symbol }}" style="height: 200px;"></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

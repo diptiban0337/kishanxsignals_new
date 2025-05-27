@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - KishanX Trading{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Add or modify styles based on the provided image */
+    .dashboard-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr; /* Adjust column ratio as needed */
+        gap: 30px;
+        padding: 20px;
+    }
+
+    @media (max-width: 900px) {
+        .dashboard-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .dashboard-left-col,
+    .dashboard-right-col {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .dashboard-card {
+        background: rgba(255, 255, 255, 0.07); /* Match card background */
+        border-radius: 18px;
+        padding: 22px 30px;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2); /* Match card shadow */
+    }
+
+    .user-card h3,
+    .signals-card h3,
+    .analytics-card h3 {
+        margin-top: 0;
+        color: #00e6d0; /* Match heading color */
+        font-size: 1.2rem; /* Adjust font size */
+    }
+
+    .user-stats {
+        display: flex;
+        gap: 20px;
+        margin-top: 15px;
+    }
+
+    .user-stats .stat {
+        flex: 1;
+    }
+
+    .user-stats .stat-label {
+        display: block;
+        font-size: 0.9rem;
+        color: #aaa; /* Adjust label color */
+        margin-bottom: 5px;
+    }
+
+    .user-stats .stat-value {
+        font-size: 1.4rem; /* Adjust value font size */
+        font-weight: 700;
+        color: #fff;
+    }
+
+    .signals-table-wrapper {
+        max-height: 300px; /* Adjust as needed for scrolling */
+        overflow-y: auto;
+        margin-top: 15px;
+    }
+
+    .signals-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .signals-table th,
+    .signals-table td {
+        padding: 12px 10px;
+        text-align: left; /* Align text left or center based on image */
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Add subtle border */
+    }
+
+    .signals-table th {
+        background: rgba(0, 230, 208, 0.2); /* Adjust header background */
+        color: #00e6d0; /* Adjust header text color */
+        font-size: 0.95rem;
+    }
+
+    .signals-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+     .no-signals {
+        text-align: center;
+        color: #aaa;
+        margin-top: 20px;
+     }
+
+    .dashboard-charts {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+
+    .dashboard-charts .chart-card {
+        flex: 1 1 300px; /* Adjust chart card size */
+        background: rgba(0, 0, 0, 0.1); /* Subtle background for charts */
+        border-radius: 10px;
+        padding: 15px;
+    }
+
+    /* Remove old styles if they conflict */
+    .topbar, .welcome, .demo-timer, .user-info, .charts, .section, .quote, .footer, .btn {
+        /* Potentially remove or modify these if the new structure replaces them */
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-left-col">
+        <div class="dashboard-card user-card">
+            <h3>Welcome, {{ user.username }}</h3>
+            <div class="user-stats">
+                <div class="stat">
+                    <span class="stat-label">Account Balance</span>
+                    <span class="stat-value">${{ "%.2f"|format(user.balance|default(0)) }}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Subscription Status</span>
+                    <span class="stat-value">{{ "Premium" if user.is_premium else "Free" }}</span>
+                </div>
+                {#
+                Add total signals stat here if desired
+                <div class="stat">
+                    <span class="stat-label">Total Signals</span>
+                    <span class="stat-value">{{ total|default(0) }}</span>
+                </div>
+                #}
+            </div>
+        </div>
+        <!-- Add other cards for left column if needed based on image -->
+    </div>
+    <div class="dashboard-right-col">
+        <div class="dashboard-card analytics-card">
+            <h3>Analytics</h3>
+            <div class="dashboard-charts">
+                {% if pair_labels and pair_counts %}
+                <div class="chart-card">
+                    <canvas id="pairChart"></canvas>
+                </div>
+                {% endif %}
+                {% if direction_labels and direction_counts %}
+                <div class="chart-card">
+                    <canvas id="directionChart"></canvas>
+                </div>
+                {% endif %}
+                {% if not (pair_labels and pair_counts) and not (direction_labels and direction_counts) %}
+                 <p class="no-signals">No analytics data available yet.</p>
+                {% endif %}
+            </div>
+        </div>
+         <div class="dashboard-card signals-card">
+            <h3>Recent Signals</h3>
+            <div class="signals-table-wrapper scrollable-signals">
+                {% if signals %}
+                <table class="signals-table">
+                    <tr><th>Pair</th><th>Direction</th><th>Confidence</th><th>Time</th></tr>
+                    {% for s in signals %}
+                    <tr>
+                        <td>{{ s.get('symbol', '') }}</td>
+                        <td>{{ s.get('direction', '') }}</td>
+                         <td>{{ "%.2f"|format(s.get('confidence', 0) or 0) }}%</td>
+                        <td>{{ s.get('created_at', '')[:16].replace('T',' ') if s.get('created_at') else '' }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p class="no-signals">No signals available yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="application/json" id="dashboard-data">
+{
+    "DEMO_TIMEOUT_MINUTES": {{ DEMO_TIMEOUT_MINUTES|default(15)|tojson }},
+    "pair_labels": {{ pair_labels|default([])|tojson }},
+    "pair_counts": {{ pair_counts|default([])|tojson }},
+    "direction_labels": {{ direction_labels|default([])|tojson }},
+    "direction_counts": {{ direction_counts|default([])|tojson }}
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dashboardData = JSON.parse(document.getElementById('dashboard-data').textContent);
+    window.DEMO_TIMEOUT_MINUTES = dashboardData.DEMO_TIMEOUT_MINUTES;
+
+    // Initialize charts only if data is available and valid
+    if (Array.isArray(dashboardData.pair_labels) && Array.isArray(dashboardData.pair_counts) && 
+        dashboardData.pair_labels.length > 0 && dashboardData.pair_counts.length > 0) {
+        const pairCtx = document.getElementById('pairChart')?.getContext('2d');
+        if (pairCtx) {
+            try {
+                new Chart(pairCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: dashboardData.pair_labels,
+                        datasets: [{
+                            label: 'Signals by Pair',
+                            data: dashboardData.pair_counts,
+                            backgroundColor: '#00e6d0',
+                            borderColor: '#00e6d0',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#fff'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#fff'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing pair chart:', error);
+            }
+        }
+    }
+
+    if (Array.isArray(dashboardData.direction_labels) && Array.isArray(dashboardData.direction_counts) && 
+        dashboardData.direction_labels.length > 0 && dashboardData.direction_counts.length > 0) {
+        const directionCtx = document.getElementById('directionChart')?.getContext('2d');
+        if (directionCtx) {
+            try {
+                new Chart(directionCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: dashboardData.direction_labels,
+                        datasets: [{
+                            data: dashboardData.direction_counts,
+                            backgroundColor: ['#4CAF50', '#f44336'],
+                            borderColor: '#fff',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#fff'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing direction chart:', error);
+            }
+        }
+    }
+
+    // Update demo timer (if applicable and element exists in base.html)
+    function updateDemoTimer() {
+        const timerElement = document.getElementById('demo-timer');
+        if (timerElement) {
+            fetch('/get_demo_time')
+                .then(response => response.json())
+                .then(data => {
+                    timerElement.textContent = data.time_left;
+                })
+                .catch(error => console.error('Error updating demo timer:', error));
+        }
+    }
+
+    // Check if timer element exists before starting interval
+    if (document.getElementById('demo-timer')) {
+        updateDemoTimer();
+        setInterval(updateDemoTimer, 60000); // Update every minute
+    }
+});
+</script>
+{% endblock %}
